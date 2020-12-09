@@ -1,35 +1,6 @@
-#include <stdio.h>
-//#include <string.h>
+#include "func.h"
 
-int power(int base, int exp)
-{
-    if (exp < 0)
-        return -1;
 
-    int result = 1;
-    while (exp)
-    {
-        if (exp & 1)
-            result *= base;
-        exp >>= 1;
-        base *= base;
-    }
-
-    return result;
-}
-
-int convert(int n)
-{
-    int dec = 0, i = 0, rem;
-    while (n != 0)
-    {
-        rem = n % 10;
-        n /= 10;
-        dec += rem * power(2, i);
-        ++i;
-    }
-    return dec;
-}
 
 typedef struct
 {
@@ -62,6 +33,7 @@ int main(void)
 
     // lectura de archivos
     FILE *fp = fopen("RAM.bin", "r");
+    printf("%d", file_size(fp));
     fscanf(fp, "%s", RAM);
     //printf("%s",RAM);
     fclose(fp);

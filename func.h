@@ -1,6 +1,6 @@
-#include <math.h>
+#include <stdio.h>
 
-int pow(int base, int exp)
+int power(int base, int exp)
 {
     if (exp < 0)
         return -1;
@@ -17,15 +17,27 @@ int pow(int base, int exp)
     return result;
 }
 
-int convert(long long n)
+int convert(int n)
 {
     int dec = 0, i = 0, rem;
     while (n != 0)
     {
         rem = n % 10;
         n /= 10;
-        dec += rem * pow(2, i);
+        dec += rem * power(2, i);
         ++i;
     }
     return dec;
+}
+
+int file_size(FILE *fp){
+    char ch = ' ';
+    int count = 0;
+     while (1) {
+        ch = fgetc(fp);
+        if (ch == EOF)
+            break;
+        ++count;
+    }
+    return count;
 }

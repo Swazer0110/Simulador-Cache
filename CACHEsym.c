@@ -1,295 +1,85 @@
-#include <stdio.h>
-//#include <string.h>
-
-int power(int base, int exp)
-{
-    if (exp < 0)
-        return -1;
-
-    int result = 1;
-    while (exp)
-    {
-        if (exp & 1)
-            result *= base;
-        exp >>= 1;
-        base *= base;
-    }
-
-    return result;
-}
-
-int convert(int n)
-{
-    int dec = 0, i = 0, rem;
-    while (n != 0)
-    {
-        rem = n % 10;
-        n /= 10;
-        dec += rem * power(2, i);
-        ++i;
-    }
-    return dec;
-}
-
-typedef struct
-{
-    short int ETQ;
-    short int Datos[8];
-} T_LINEA_CACHE;
+#include "func.h"
 
 int main(void)
 {
-    int i, j, counter = 0;
-    int k = 0, r = 0;
-    unsigned char RAM[1023];
+
+    char RAM[1024];
+    int hexRAM[1024];
+    int hexRAMbloques[128][8];
+    int accesos_memoria_dec[11];
+    int accesos_memoria_hex[11];
+    int accesos_memoria_bin[11];
     char acceso_memoria[59];
-    int tiempoglobal = 0;
-    int numfallos = 0;
-    char aux[4];
-    int a[16];
-    int memoria[12][16];
-    unsigned char hexRAM[2047];
-    int linea = 0, palabra = 0, etiqueta = 0;
+    char aux[5];
+    int i = 0, j = 0, k = 0, etiqueta = 0, linea = 0, palabra = 0;
+    int ascii;
 
-    T_LINEA_CACHE lineas[4];
-    for (i = 0; i < 4; ++i)
-    {
-        lineas[i].ETQ = 0xFF;
-
-        for (j = 0; j < 4; ++j)
-            lineas[i].Datos[j] = 0;
-    }
-
-    // lectura de archivos
+    //leer ram
     FILE *fp = fopen("RAM.bin", "r");
     fscanf(fp, "%s", RAM);
-    //printf("%s",RAM);
     fclose(fp);
 
+    // convertir a una array de int hexadecimales
+    for (i = 0; i < 1024; ++i)
+    {
+        ascii = char_to_ascii(RAM[i]);
+        hexRAM[i] = dec_to_hex(ascii);
+    }
+
+    // convertir a un array bidimensional por bloques
+    for (i = 0; i < 1024; ++i)
+    {
+        if (j == 8)
+        {
+            k++;
+            j = 0;
+        }
+        hexRAMbloques[k][j] = hexRAM[i];
+        j++;
+    }
+
+    //leer accesos de memoria
     FILE *fd = fopen("accesos_memoria.txt", "r");
     fread(acceso_memoria, 60, 1, fd);
     acceso_memoria[59] = '\0';
     fclose(fd);
-    //printf("%s",acceso_memoria);
 
-    // conversion de RAM a hexadecimal y division por bloques
-    for (i = 0; i < 1024; ++i)
+    // DESCOMENTAR PARA DEBUGGING
+    //printf("VALORES ACCESOS MEMORIA:\n\n");
+
+    //convertir a array de hexadecimales
+    k = 0;
+    for (i = 0; acceso_memoria[i] != '\0'; i++)
     {
-        sprintf(hexRAM + (i * 2), "%02X", RAM[i]);
-    }
-    // printf("%s",hexRAM);
-
-    unsigned char hex_bloques_RAM[200][17];
-
-    for (i = 0, k = 0; i < 2047; i++)
-    {
-
-        for (j = 0; j < 16; j++)
+        for (j = 0; j < 4; ++j)
         {
-            hex_bloques_RAM[k][j] = hexRAM[i];
-            i++;
+            aux[j] = acceso_memoria[i];
+            ++i;
         }
-        i--;
-        hex_bloques_RAM[k][16] = '\0';
+        accesos_memoria_dec[k] = charhex_to_dec(aux);
+        accesos_memoria_hex[k] = dec_to_hex(accesos_memoria_dec[k]);
+        accesos_memoria_bin[k] = dec_to_binaryint(accesos_memoria_dec[k]);
+        etiqueta = getEtiqueta(accesos_memoria_bin[k]);
+        linea = getLinea(accesos_memoria_bin[k]);
+        palabra = getPalabra(accesos_memoria_bin[k]);
+
+        // DESCOMENTAR PARA DEBUGGING
+        /*printf("Decimal: %d\tHexadecimal: %04X\tBinario: %016d\nEtiqueta: %02d\tLinea: %d\t\tPalabra: %d\n",
+        accesos_memoria_dec[k], accesos_memoria_hex[k], accesos_memoria_bin[k], etiqueta, linea, palabra);
+        printf("\n\n"); */
+
         k++;
     }
 
-    /*for(i=0;i<128;i++){
-        printf("%c%c %c%c %c%c %c%c %c%c %c%c %c%c %c%c %c%c \n", hex_bloques_RAM[i][0], hex_bloques_RAM[i][1], hex_bloques_RAM[i][2], hex_bloques_RAM[i][3],
-        hex_bloques_RAM[i][4], hex_bloques_RAM[i][5], hex_bloques_RAM[i][6], hex_bloques_RAM[i][7], hex_bloques_RAM[i][8], hex_bloques_RAM[i][9],
-        hex_bloques_RAM[i][10], hex_bloques_RAM[i][11], hex_bloques_RAM[i][12], hex_bloques_RAM[i][13], hex_bloques_RAM[i][14], hex_bloques_RAM[i][15]);
-    }*/
-
-    // conversion accesos_memoria a binario
-
-    for (j = 0; j < 59; ++j)
+    // DESCOMENTAR PARA DEBUGGING
+    /*printf("VALORES RAM EN HEXADECIMAL POR BLOQUES:\n\n");
+    for (i = 0; i < 128; ++i)
     {
-        for (i = 0; i < 4; ++i)
+        for (j = 0; j < 8; ++j)
         {
-            aux[i] = acceso_memoria[j];
-            ++j;
+            printf("%X\t", hexRAMbloques[i][j]);
         }
-
-        for (i = 0, k = 0; i < 4; ++i)
-        {
-            switch (aux[i])
-            {
-            case '0':
-                a[k] = 0;
-                ++k;
-                a[k] = 0;
-                ++k;
-                a[k] = 0;
-                ++k;
-                a[k] = 0;
-                break;
-            case '1':
-                a[k] = 0;
-                ++k;
-                a[k] = 0;
-                ++k;
-                a[k] = 0;
-                ++k;
-                a[k] = 1;
-                break;
-            case '2':
-                a[k] = 0;
-                ++k;
-                a[k] = 0;
-                ++k;
-                a[k] = 1;
-                ++k;
-                a[k] = 0;
-                break;
-            case '3':
-                a[k] = 0;
-                ++k;
-                a[k] = 0;
-                ++k;
-                a[k] = 1;
-                ++k;
-                a[k] = 1;
-                break;
-            case '4':
-                a[k] = 0;
-                ++k;
-                a[k] = 1;
-                ++k;
-                a[k] = 0;
-                ++k;
-                a[k] = 0;
-                break;
-            case '5':
-                a[k] = 0;
-                ++k;
-                a[k] = 1;
-                ++k;
-                a[k] = 0;
-                ++k;
-                a[k] = 1;
-                break;
-            case '6':
-                a[k] = 0;
-                ++k;
-                a[k] = 1;
-                ++k;
-                a[k] = 1;
-                ++k;
-                a[k] = 0;
-                break;
-            case '7':
-                a[k] = 0;
-                ++k;
-                a[k] = 1;
-                ++k;
-                a[k] = 1;
-                ++k;
-                a[k] = 1;
-                break;
-            case '8':
-                a[k] = 1;
-                ++k;
-                a[k] = 0;
-                ++k;
-                a[k] = 0;
-                ++k;
-                a[k] = 0;
-                break;
-            case '9':
-                a[k] = 1;
-                ++k;
-                a[k] = 0;
-                ++k;
-                a[k] = 0;
-                ++k;
-                a[k] = 1;
-                break;
-            case 'A':
-                a[k] = 1;
-                ++k;
-                a[k] = 0;
-                ++k;
-                a[k] = 1;
-                ++k;
-                a[k] = 0;
-                break;
-            case 'B':
-                a[k] = 1;
-                ++k;
-                a[k] = 0;
-                ++k;
-                a[k] = 1;
-                ++k;
-                a[k] = 1;
-                break;
-            case 'C':
-                a[k] = 1;
-                ++k;
-                a[k] = 1;
-                ++k;
-                a[k] = 0;
-                ++k;
-                a[k] = 0;
-                break;
-            case 'D':
-                a[k] = 1;
-                ++k;
-                a[k] = 1;
-                ++k;
-                a[k] = 0;
-                ++k;
-                a[k] = 1;
-                break;
-            case 'E':
-                a[k] = 1;
-                ++k;
-                a[k] = 1;
-                ++k;
-                a[k] = 1;
-                ++k;
-                a[k] = 0;
-                break;
-            case 'F':
-                a[k] = 1;
-                ++k;
-                a[k] = 1;
-                ++k;
-                a[k] = 1;
-                ++k;
-                a[k] = 1;
-                break;
-            default:
-                printf("Invalid input.");
-                break;
-            }
-            k++;
-        }
-        for (i = 0; i < 17; ++i)
-        {
-            memoria[r][i] = a[i];
-        }
-        r++;
-        //printf("%s\n", a);
+        printf("\n");
     }
-
-    for (i = 0; i < 12; ++i)
-    {
-        printf("%d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d\n", memoria[i][0], memoria[i][1], memoria[i][2], memoria[i][3], memoria[i][4], memoria[i][5],
-               memoria[i][6], memoria[i][7], memoria[i][8], memoria[i][9], memoria[i][10], memoria[i][11], memoria[i][12], memoria[i][13], memoria[i][14], memoria[i][15]);
-    }
-
-    //bucle principal
-    for (i = 0; i < 12; ++i)
-    {
-        //etiqueta
-        etiqueta = convert(memoria[i][6] * 10000 + memoria[i][7] * 1000 + memoria[i][8] * 100 + memoria[i][9] * 10 + memoria[i][10]);
-        //linea
-        linea = convert(memoria[i][11] * 10 + memoria[i][12]);
-        //palabra
-        palabra = convert(memoria[i][13] * 100 + memoria[i][14] * 10 + memoria[i][15]);
-        printf("%d %d %d", etiqueta, linea, palabra);
-        getchar();
-    }
-
-    return 0;
+    printf("\n\n");*/
 }

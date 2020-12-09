@@ -29,15 +29,3 @@ int convert(int n)
     }
     return dec;
 }
-
-int file_size(FILE *fp){
-    char ch = ' ';
-    int count = 0;
-     while (1) {
-        ch = fgetc(fp);
-        if (ch == EOF)
-            break;
-        ++count;
-    }
-    return count;
-}

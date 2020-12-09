@@ -33,7 +33,6 @@ int main(void)
 
     // lectura de archivos
     FILE *fp = fopen("RAM.bin", "r");
-    printf("%d", file_size(fp));
     fscanf(fp, "%s", RAM);
     //printf("%s",RAM);
     fclose(fp);

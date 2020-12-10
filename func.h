@@ -138,3 +138,13 @@ typedef struct
     short int ETQ;
     short int Datos[8];
 } T_LINEA_CACHE;
+
+int checkEmptyLine(T_LINEA_CACHE a)
+{
+    int c = 0, j = 0;
+    for (j = 0; j < 4; ++j)
+        if (a.Datos[j] == 0xFF)
+            c++;
+    if (c == 4 && a.ETQ == 0) return 1;
+    else return 0;
+}

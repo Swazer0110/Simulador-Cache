@@ -1,5 +1,7 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 
 int power(int base, int exp)
 {
@@ -129,4 +131,20 @@ int getPalabra(int binary_int)
     }
     palabra_binint = palabra_bin[0] * 10 + palabra_bin[1];
     return binary_to_dec(palabra_binint);
+}
+
+typedef struct
+{
+    short int ETQ;
+    short int Datos[8];
+} T_LINEA_CACHE;
+
+int checkEmptyLine(T_LINEA_CACHE a)
+{
+    int c = 0, j = 0;
+    for (j = 0; j < 4; ++j)
+        if (a.Datos[j] == 0xFF)
+            c++;
+    if (c == 4 && a.ETQ == 0) return 1;
+    else return 0;
 }

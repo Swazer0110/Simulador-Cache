@@ -110,7 +110,7 @@ int main(void)
                        lineas_cache[j].Datos[2], lineas_cache[j].Datos[1], lineas_cache[j].Datos[0]);
             }
             texto[i] = (char)dato;
-            //sleep(2);
+            sleep(2);
         }
         else
         {

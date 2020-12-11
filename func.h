@@ -148,3 +148,10 @@ int checkEmptyLine(T_LINEA_CACHE a)
     if (c == 4 && a.ETQ == 0) return 1;
     else return 0;
 }
+
+int numOfChar(FILE *fp){
+    int count = 0;
+    char c;
+    for(c = getc(fp); c != EOF; c = getc(fp)) count++;
+    return count;
+}

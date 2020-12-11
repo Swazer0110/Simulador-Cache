@@ -6,11 +6,11 @@ int main(void)
     char RAM[1024];
     int hexRAM[1024];
     int hexRAMbloques[128][8];
-    int accesos_memoria_dec[11];
-    int accesos_memoria_bin[11];
+    int accesos_memoria_dec[12];
+    int accesos_memoria_bin[12];
     char acceso_memoria[59];
     char aux[5];
-    int etiqueta[11], linea[11], palabra[11], bloque[11];
+    int etiqueta[12], linea[12], palabra[12], bloque[12];
     int i = 0, j = 0, k = 0;
     int ascii;
     char texto[100];
@@ -89,13 +89,7 @@ int main(void)
         k++;
     }
 
-    for (i = 0; i < 11; ++i)
-    {
-        printf("%d", linea[i]);
-    }
-
-    k = 0;
-    for (i = 0; i < 11; ++i)
+    for (i = 0; i < 12; ++i)
     {
         if (etiqueta[i] == lineas_cache[linea[i]].ETQ && checkEmptyLine(lineas_cache[linea[i]]) == 0)
         {
@@ -110,7 +104,7 @@ int main(void)
                        lineas_cache[j].Datos[2], lineas_cache[j].Datos[1], lineas_cache[j].Datos[0]);
             }
             texto[i] = (char)dato;
-            sleep(2);
+            //sleep(2);
         }
         else
         {
